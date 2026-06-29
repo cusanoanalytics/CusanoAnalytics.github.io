@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cusano Analytics</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cascadia+Code:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg: #ffffff;
+  --bg-2: #ffffff;
+  --bg-3: #ffffff;
+  --text: #000000;
+  --text-2: #000000;
+  --text-3: #000000;
+  --border: #000000;
+  --border-light: #000000;
+  --card-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+  --bg: #000000;
+  --bg-2: #000000;
+  --bg-3: #000000;
+  --text: #ffffff;
+  --text-2: #ffffff;
+  --text-3: #ffffff;
+  --border: #ffffff;
+  --border-light: #444444;
+  --card-bg: #000000;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; background: var(--bg); transition: background 0.25s; }
+
+body {
+  font-family: 'Cascadia Code', 'Cascadia Mono', 'Fira Code', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background 0.25s, color 0.25s;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* HEADER */
+header {
+  border-bottom: 1.5px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  transition: background 0.25s;
+}
+
+.logo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.logo span { font-weight: 300; color: var(--text-3); }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header-location {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+
+.theme-toggle {
+  background: none;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.theme-toggle:hover { background: var(--text); color: var(--bg); }
+
+/* TABS */
+.tab-bar {
+  border-bottom: 1.5px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  background: var(--bg);
+  transition: background 0.25s;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+  padding: 0.75rem 1.25rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  text-transform: uppercase;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--text); }
+
+/* PANELS */
+.tab-panel { display: none; background: var(--bg); }
+.tab-panel.active { display: block; background: var(--bg); }
+
+/* CONTAINER */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 2rem;
+  animation: fadeIn 0.35s ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* SECTION HEADER */
+.section-header {
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 0.75rem;
+}
+.section-header h2 {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.section-header .count { font-size: 0.7rem; color: var(--text-3); }
+
+/* CHART GRID */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1.5px solid var(--border);
+}
+
+.chart-card {
+  background: var(--card-bg);
+  padding: 1.75rem;
+  border-right: 1.5px solid var(--border);
+  transition: background 0.25s, box-shadow 0.18s ease;
+}
+.chart-card:hover {
+  box-shadow: inset 0 0 0 2px var(--text);
+}
+.chart-card:nth-child(even) { border-right: none; }
+.chart-card.full-width {
+  grid-column: 1 / -1;
+  border-right: none;
+  border-top: 1.5px solid var(--border);
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.card-tag {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  border: 1px solid var(--border-light);
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+.card-date { font-size: 0.68rem; color: var(--text-3); }
+
+.card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+.card-desc {
+  font-size: 0.78rem;
+  color: var(--text-2);
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+}
+
+/* Chart visuals */
+.chart-visual {
+  border: 2px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+  background: var(--bg);
+  transition: background 0.25s;
+}
+.chart-visual > img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  display: block;
+}
+
+.bars-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 1rem 1rem 0.5rem;
+  height: 120px;
+}
+
+.bar-item {
+  flex: 1;
+  background: var(--text);
+  border-radius: 1px 1px 0 0;
+  transform-origin: bottom;
+  animation: growBar 0.6s ease forwards;
+  opacity: 0;
+}
+
+@keyframes growBar {
+  from { transform: scaleY(0); opacity: 0; }
+  to { transform: scaleY(1); opacity: var(--op); }
+}
+
+/* Bar set 1 — ascending */
+.bars-1 .bar-item:nth-child(1)  { height: 40%; --op: 0.18; animation-delay: 0.05s; }
+.bars-1 .bar-item:nth-child(2)  { height: 50%; --op: 0.25; animation-delay: 0.10s; }
+.bars-1 .bar-item:nth-child(3)  { height: 38%; --op: 0.20; animation-delay: 0.15s; }
+.bars-1 .bar-item:nth-child(4)  { height: 65%; --op: 0.40; animation-delay: 0.20s; }
+.bars-1 .bar-item:nth-child(5)  { height: 55%; --op: 0.35; animation-delay: 0.25s; }
+.bars-1 .bar-item:nth-child(6)  { height: 80%; --op: 0.60; animation-delay: 0.30s; }
+.bars-1 .bar-item:nth-child(7)  { height: 70%; --op: 0.55; animation-delay: 0.35s; }
+.bars-1 .bar-item:nth-child(8)  { height: 95%; --op: 0.90; animation-delay: 0.40s; }
+
+/* Bar set 2 — varied */
+.bars-2 .bar-item:nth-child(1)  { height: 85%; --op: 0.90; animation-delay: 0.05s; }
+.bars-2 .bar-item:nth-child(2)  { height: 55%; --op: 0.60; animation-delay: 0.10s; }
+.bars-2 .bar-item:nth-child(3)  { height: 95%; --op: 1.00; animation-delay: 0.15s; }
+.bars-2 .bar-item:nth-child(4)  { height: 40%; --op: 0.45; animation-delay: 0.20s; }
+.bars-2 .bar-item:nth-child(5)  { height: 72%; --op: 0.75; animation-delay: 0.25s; }
+.bars-2 .bar-item:nth-child(6)  { height: 28%; --op: 0.32; animation-delay: 0.30s; }
+.bars-2 .bar-item:nth-child(7)  { height: 60%; --op: 0.65; animation-delay: 0.35s; }
+.bars-2 .bar-item:nth-child(8)  { height: 45%; --op: 0.50; animation-delay: 0.40s; }
+
+.line-visual {
+  padding: 1rem 1rem 0.5rem;
+  height: 120px;
+}
+.line-visual svg { width: 100%; height: 100%; overflow: visible; }
+
+.chart-label-row {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.68rem;
+  color: var(--text-3);
+  padding: 0 1rem 0.75rem;
+}
+.chart-label-row span::before { content: '—'; margin-right: 4px; }
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tool-list { display: flex; gap: 6px; }
+.tool-pill {
+  font-size: 0.67rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+  border: 1px solid var(--border-light);
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+
+.donate-btn {
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  padding: 5px 12px;
+  cursor: pointer;
+  border-radius: 2px;
+  text-decoration: none;
+  display: inline-block;
+  transition: opacity 0.15s;
+}
+.donate-btn:hover { opacity: 0.7; }
+
+/* PROJECTS LIST */
+.chart-list {
+  border: 1.5px solid var(--border);
+}
+
+.list-item {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--card-bg);
+  transition: background 0.15s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.list-item:last-child { border-bottom: none; }
+.list-item:hover { background: var(--bg-2); }
+
+.list-date { font-size: 0.72rem; color: var(--text-3); white-space: nowrap; }
+.list-title { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+.list-tags { display: flex; gap: 6px; margin-top: 0.3rem; flex-wrap: wrap; }
+.list-right { display: flex; gap: 8px; align-items: center; }
+.list-arrow { font-size: 0.8rem; color: var(--text-3); }
+
+/* ABOUT */
+.about-intro { margin-bottom: 3rem; }
+.about-name { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+.about-subtitle { font-size: 0.8rem; color: var(--text-3); margin-bottom: 1.5rem; }
+.about-bio { font-size: 0.83rem; color: var(--text-2); line-height: 1.8; max-width: 540px; margin-bottom: 1.5rem; }
+
+.contact-link {
+  display: inline-block;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  border: 1.5px solid var(--border);
+  padding: 8px 18px;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.contact-link:hover { background: var(--text); color: var(--bg); }
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem 3rem;
+}
+.about-block { border-top: 1.5px solid var(--border); padding-top: 1.25rem; }
+.about-block h3 {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 0.85rem;
+}
+.about-block p { font-size: 0.83rem; color: var(--text-2); line-height: 1.8; }
+
+.skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.25rem; }
+.skill-item { font-size: 0.78rem; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
+.skill-item::before { content: '>'; color: var(--text-3); font-size: 0.7rem; }
+
+
+/* PROJECT MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 2rem 1rem;
+}
+.modal-overlay.open { display: flex; justify-content: center; align-items: flex-start; }
+.modal-box {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  max-width: 900px;
+  width: 100%;
+  border-radius: 2px;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1.5px solid var(--border);
+}
+.modal-header h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.modal-close {
+  background: none;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 2px;
+  transition: background 0.15s, color 0.15s;
+}
+.modal-close:hover { background: var(--text); color: var(--bg); }
+.modal-body { padding: 1.5rem; }
+.modal-meta {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+.modal-desc {
+  font-size: 0.83rem;
+  color: var(--text-2);
+  line-height: 1.75;
+  margin-bottom: 1.5rem;
+}
+.modal-charts {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.modal-chart-img {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  display: block;
+}
+.modal-page-label {
+  font-size: 0.68rem;
+  color: var(--text-3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.modal-footer {
+  border-top: 1px solid var(--border-light);
+  padding-top: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1.5px solid var(--border);
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-3);
+  background: var(--bg);
+  transition: background 0.25s;
+}
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  .chart-grid { grid-template-columns: 1fr; }
+  .chart-card { border-right: none; border-bottom: 1.5px solid var(--border); }
+  .chart-card.full-width { border-top: 1.5px solid var(--border); }
+  .about-grid { grid-template-columns: 1fr; }
+  .list-item { grid-template-columns: 70px 1fr; }
+  .list-right { display: none; }
+  .header-location { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Cusano Analytics</span></div>
+  <div class="header-right">
+    <span class="header-location">Based in Western Massachusetts</span>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <span id="theme-icon">◑</span>
+    </button>
+  </div>
+</header>
+
+<div class="tab-bar" role="tablist">
+  <button class="tab-btn active" onclick="switchTab('featured', this)" role="tab">Featured</button>
+  <button class="tab-btn" onclick="switchTab('all', this)" role="tab">Projects</button>
+  <button class="tab-btn" onclick="switchTab('about', this)" role="tab">About</button>
+</div>
+
+
+<!-- TAB 1: FEATURED -->
+<div class="tab-panel active" id="tab-featured">
+  <div class="container">
+    <div class="section-header">
+      <h2>Featured Projects</h2>
+      <span class="count">3 selected</span>
+    </div>
+
+    <div class="chart-grid">
+
+      <div class="chart-card full-width" style="cursor:pointer;" onclick="openRAProject()">
+        <div class="card-meta">
+          <span class="card-tag">Healthcare Economics</span>
+          <span class="card-date">June 2026</span>
+        </div>
+        <div class="card-title">Massachusetts Risk Adjustment Transfers — 2024 Benefit Year</div>
+        <div class="card-desc">How $238.8M moved through Massachusetts' ACA risk adjustment program in 2024. Features the redistribution of dollars from insurers with healthier-than-average enrollees to insurers carrying a sicker, costlier population. Data collected from cms.gov</div>
+        <div class="chart-visual" style="padding: 1rem;">
+          <img src="projects/ra/ra1.png" style="width:100%; border-radius:1px; display:block;" alt="Massachusetts Risk Adjustment Transfers — 2024 Benefit Year" />
+        </div>
+        <div class="card-footer">
+
+          </div>
+          <span style="font-size:0.72rem; color:var(--text-3);">Click to view full report →</span>
+        </div>
+
+      <div class="chart-card full-width" style="cursor:pointer;" onclick="openMLRProject()">
+        <div class="card-meta">
+          <span class="card-tag">Healthcare Economics</span>
+          <span class="card-date">June 2026</span>
+        </div>
+        <div class="card-title">Large Group Medical Loss Ratio Comparison — MA, NJ, VA</div>
+        <div class="card-desc">A decade of insurer compliance, market consolidation, and consumer rebates across three states, 2014–2024. Data collected from cms.gov</div>
+        <div class="chart-visual" style="padding: 1rem;">
+          <img src="projects/mlr by state/mlr1.png" style="width:100%; border-radius:1px; display:block;" alt="Large Group Medical Loss Ratio Comparison — MA, NJ, VA" />
+        </div>
+        <div class="card-footer">
+
+          </div>
+          <span style="font-size:0.72rem; color:var(--text-3);">Click to view full report →</span>
+        </div>
+
+      <div class="chart-grid" style="grid-column: 1 / -1;">
+
+      <div class="chart-card full-width" style="cursor:pointer;" onclick="openProject()">
+        <div class="card-meta">
+          <span class="card-tag">Population Health Determinants</span>
+          <span class="card-date">March 2026</span>
+        </div>
+        <div class="card-title">Opioid Mortality Rate by County in Western Massachusetts</div>
+        <div class="card-desc">A data analysis of opioid (X42) mortality rates across Berkshire, Franklin, Hampshire, and Hampden counties from 2018–2023, compared against the Massachusetts state average. Includes Narcan distribution and poverty rate comparisons to explore what factors may explain differing outcomes across neighboring counties. Sources: CDC WONDER, BSAS, HDPulse.</div>
+        <div class="chart-visual" style="padding: 1rem;">
+          <img src="projects/opioid mortality by county western ma/af3db928-1.png" style="width:100%; border-radius:1px; display:block;" alt="Opioid Mortality Rate by County in Western Massachusetts" />
+        </div>
+        <div class="card-footer">
+
+          </div>
+          <span style="font-size:0.72rem; color:var(--text-3);">Click to view full report →</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- TAB 2: PROJECTS -->
+<div class="tab-panel" id="tab-all">
+  <div class="container">
+    <div class="section-header">
+      <h2>PROJECTS</h2>
+      <span class="count">newest → oldest</span>
+    </div>
+
+    <div class="chart-list">
+      <div class="list-item" onclick="openRAProject()" style="cursor:pointer;">
+        <span class="list-date">June 2026</span>
+        <div class="list-info">
+          <div class="list-title">Massachusetts Risk Adjustment Transfers — 2024 Benefit Year</div>
+          <div class="list-tags">
+
+          </div>
+        </div>
+        <div class="list-right">
+          <span class="list-arrow">→</span>
+        </div>
+      </div>
+      <div class="list-item" onclick="openMLRProject()" style="cursor:pointer;">
+        <span class="list-date">June 2026</span>
+        <div class="list-info">
+          <div class="list-title">Large Group Medical Loss Ratio Comparison — MA, NJ, VA</div>
+          <div class="list-tags">
+
+          </div>
+        </div>
+        <div class="list-right">
+          <span class="list-arrow">→</span>
+        </div>
+      </div>
+      <div class="list-item" onclick="openProject()" style="cursor:pointer;">
+        <span class="list-date">March 2026</span>
+        <div class="list-info">
+          <div class="list-title">Opioid Mortality Rate by County in Western Massachusetts</div>
+          <div class="list-tags">
+
+          </div>
+        </div>
+        <div class="list-right">
+          <span class="list-arrow">→</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- TAB 3: ABOUT -->
+<div class="tab-panel" id="tab-about">
+  <div class="container">
+
+    <div class="about-intro">
+      <div class="about-name">Ben Cusano</div>
+      <div class="about-subtitle">B.S. Health Science</div>
+<div style="overflow: hidden; margin-bottom: 1.5rem;">
+<figure style="float: right; width: 220px; margin-left: 1.5rem; margin-bottom: 0.5rem;">
+  <img src="images/IMG_4921.jpeg" alt="Me, standing on frozen Lake Champlain in Burlington, VT." style="width: 100%; border-radius: 2px;">
+  <figcaption style="font-size: 0.7rem; color: var(--text-3); font-style: italic; margin-top: 0.4rem; text-align: center;">Me, standing on frozen Lake Champlain in Burlington, VT.</figcaption>
+</figure>
+  <p class="about-bio" style="margin-bottom: 1rem;">
+    My name is Ben, and I graduated in 2023 from James Madison University with a Bachelor of Science in Health Science. During my studies at JMU, I found that my greatest interests leaned towards healthcare economics, epidemiology, and United States healthcare policy. This website is meant to serve as my data analytics portfolio, to showcase charts that I've created which surround my interests. This portfolio is both an opportunity to practice my skills, and a showcase of my interests. Please feel free to contact me, as I am always looking to grow and connect!
+  </p>
+  <p style="font-size: 0.83rem; color: var(--text-2); line-height: 1.8;">
+    In my free time, I enjoy reading, lifting weights, and cooking. I also love to hike, snowboard, and go out on the water when I can. I love watching and comparing old statistics of various sports such as basketball, baseball, and Formula 1 racing. I closely follow national and foreign policy reports, as well as news surrounding the stock market.
+  </p>
+</div>
+<br>
+      <a href="mailto:bencusano701@gmail.com" class="contact-link">Contact</a>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-block">
+        <h3>Focus areas</h3>
+        <p>Public health access and insurance gaps in rural Massachusetts. Economic inequality and policy trends. Insurance trends and policy.</p>
+      </div>
+
+      <div class="about-block">
+        <h3>Skillset</h3>
+        <div class="skills-grid">
+          <span class="skill-item">SQL</span>
+          <span class="skill-item">Power BI</span>
+          <span class="skill-item">Microsoft Excel</span>
+          <span class="skill-item">Electronic Health Records</span>
+          <span class="skill-item">IBM SPSS</span>
+          <span class="skill-item">Project Management</span>
+        </div>
+      </div>
+
+      <div class="about-block">
+        <h3>Data sources</h3>
+        <p>All data used is publicly available.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<footer>
+  <span>All data is based on public sources. Sources will always be cited.</span>
+  <span>2026</span>
+</footer>
+
+
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="projectModal" onclick="handleOverlayClick(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>Opioid Mortality Rate by County in Western Massachusetts</h2>
+      <button class="modal-close" onclick="closeProject()">✕ Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta">
+        <span class="card-tag">Population Health Determinants</span>
+        <span class="card-date">March 2026</span>
+
+      </div>
+      <p class="modal-desc">A data analysis of opioid (X42) mortality rates across Berkshire, Franklin, Hampshire, and Hampden counties from 2018–2023, compared against the Massachusetts state average. Includes Narcan distribution and poverty rate comparisons to explore what factors may explain differing outcomes across neighboring counties.</p>
+
+<p>For more information, visit the <a href="https://www.mass.gov/info-details/massachusetts-opioid-abuse-prevention-collaborative" target="_blank">Massachusetts Opioid Abuse Prevention Collaborative</a>.</p>
+
+<br>
+      <div class="modal-charts">
+        <div>
+          <div class="modal-page-label">Page 1 — County Breakdown</div>
+          <img class="modal-chart-img" src="projects/opioid mortality by county western ma/af3db928-1.png" alt="Page 1" />
+        </div>
+        <div>
+          <div class="modal-page-label">Page 2 — State Comparison</div>
+          <img class="modal-chart-img" src="projects/opioid mortality by county western ma/af3db928-2.png" alt="Page 2" />
+        </div>
+        <div>
+          <div class="modal-page-label">Page 3 — Narcan Distribution & Poverty Rate</div>
+          <img class="modal-chart-img" src="projects/opioid mortality by county western ma/af3db928-3.png" alt="Page 3" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="tool-list">
+          <span style="font-size:0.72rem; color:var(--text-3);">Data: CDC WONDER · BSAS · HDPulse</span>
+        </div>
+        <a href="https://www.rizema.org/donate/" target="_blank" class="donate-btn">↗ Donate</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MLR PROJECT MODAL -->
+<div class="modal-overlay" id="mlrModal" onclick="handleOverlayClickMLR(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>Large Group Medical Loss Ratio Comparison — MA, NJ, VA</h2>
+      <button class="modal-close" onclick="closeMLRProject()">✕ Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta">
+        <span class="card-tag">Healthcare Economics</span>
+        <span class="card-date">June 2026</span>
+      </div>
+      <p class="modal-desc">A decade of insurer compliance, market consolidation, and consumer rebates across three states, 2014–2024.</p>
+
+<br>
+      <div class="modal-charts">
+        <div>
+          <div class="modal-page-label">Page 1 — Average MLR (%) by State</div>
+          <img class="modal-chart-img" src="projects/mlr by state/mlr1.png" alt="Page 1" />
+        </div>
+        <div>
+          <div class="modal-page-label">Page 2 — Issuers Reporting &amp; Rebates Paid</div>
+          <img class="modal-chart-img" src="projects/mlr by state/mlr2.png" alt="Page 2" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="tool-list">
+          <span style="font-size:0.72rem; color:var(--text-3);">Data: CMS Medical Loss Ratio Public Use Files (2014–2024) · Large Group market only</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RA PROJECT MODAL -->
+<div class="modal-overlay" id="raModal" onclick="handleOverlayClickRA(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>Massachusetts Risk Adjustment Transfers — 2024 Benefit Year</h2>
+      <button class="modal-close" onclick="closeRAProject()">✕ Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta">
+        <span class="card-tag">Healthcare Economics</span>
+        <span class="card-date">June 2026</span>
+      </div>
+      <p class="modal-desc">How $238.8M moved through Massachusetts' ACA risk adjustment program in 2024. Features the redistribution of dollars from insurers with healthier-than-average enrollees to insurers carrying a sicker, costlier population. Data collected from cms.gov</p>
+
+<br>
+      <div class="modal-charts">
+        <div>
+          <div class="modal-page-label">Bars extending left (gray) paid into the risk pool; their enrollees were healthier/cheaper than the state average. Bars extending right (black) received payments; their enrollees were sicker/costlier than average. The purpose of this diverging bar chart is to show who's paying, and who's getting paid, as a result of risk adjustment transfers. 
+</div>
+          <img class="modal-chart-img" src="projects/ra/ra1.png" alt="Page 1" />
+        </div>
+        <div>
+          <div class="modal-page-label">Are big receivers also carrying catastrophic cost members? The High-Cost Risk Pool separately reimburses 60% of any single enrollee's costs above $1 million. Dots high on both axes are issuers receiving large general risk transfers and carrying genuinely catastrophic outlier cases.</div>
+          <img class="modal-chart-img" src="projects/ra/ra2.png" alt="Page 2" />
+        </div>
+        <div>
+          <div class="modal-page-label">In the Risk Adjustment Waterfall Chart, each bar represents one issuer's transfer amount, stacked onto the running total of everyone before it. Black bars climb the total (receivers) and gray bars bring it back down (payers). The waterfall shows how $238.8M moves through Massachusett's risk pool, and zeroes out from issuers with the most expensive members to the least expensive members. </div>
+          <img class="modal-chart-img" src="projects/ra/ra3.png" alt="Page 3" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="tool-list">
+          <span style="font-size:0.72rem; color:var(--text-3);">Data: CMS Summary Report on Individual and Small Group Market Risk Adjustment Transfers, 2024 Benefit Year</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-icon').textContent = isDark ? '◑' : '◐';
+}
+
+function openProject() {
+  document.getElementById('projectModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProject() {
+  document.getElementById('projectModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('projectModal')) closeProject();
+}
+
+function openMLRProject() {
+  document.getElementById('mlrModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMLRProject() {
+  document.getElementById('mlrModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClickMLR(e) {
+  if (e.target === document.getElementById('mlrModal')) closeMLRProject();
+}
+
+function openRAProject() {
+  document.getElementById('raModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRAProject() {
+  document.getElementById('raModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClickRA(e) {
+  if (e.target === document.getElementById('raModal')) closeRAProject();
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeProject(); closeMLRProject(); closeRAProject(); }
+});
+</script>
